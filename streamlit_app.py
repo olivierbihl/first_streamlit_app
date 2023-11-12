@@ -26,7 +26,6 @@ streamlit.dataframe(fruits_to_show)
 # repeatable function
 def get_fruityvice_data(this_fruit_choice):
     fruityvice_response = requests.get("https://fruityvice.com/api/fruit/"  +  this_fruit_choice)
-    # streamlit.text(fruityvice_response.json())
     # flatten/normalize json content
     fruityvice_normalized = pandas.json_normalize(fruityvice_response.json())
     return fruityvice_normalized
@@ -40,12 +39,7 @@ try:
   else:
     streamlit.write('The user entered ', fruit_choice)
     back_from_function= get_fruityvice_data(fruit_choice)
-    #fruityvice_response = requests.get("https://fruityvice.com/api/fruit/"  +  fruit_choice)
-    # streamlit.text(fruityvice_response.json())
-    # flatten/normalize json content
-    #fruityvice_normalized = pandas.json_normalize(fruityvice_response.json())
     # display result in a frame
-    # streamlit.dataframe(fruityvice_normalized)
     streamlit.dataframe(back_from_function)
     
 except URLError as e:
@@ -62,15 +56,8 @@ def get_fruit_load_lit():
 if streamlit.button('Get Fruit Load List'):
     my_cnx = snowflake.connector.connect(**streamlit.secrets["snowflake"])
     my_data_rows = get_fruit_load_lit()
+    my_cnx.close()
     streamlit.dataframe(my_data_rows)
-
-
-#my_cnx = snowflake.connector.connect(**streamlit.secrets["snowflake"])
-#my_cur = my_cnx.cursor()
-#my_cur.execute("SELECT * from fruit_load_list")
-#my_data_rows = my_cur.fetchall()
-#streamlit.header("The fruit load list contains:")
-#streamlit.dataframe(my_data_rows)
 
 def insert_row_snowflake(new_fruit):
     with my_cnx.cursor() as my_cur:
@@ -82,5 +69,5 @@ if streamlit.button('Add Fruit to the List'):
     my_cnx = snowflake.connector.connect(**streamlit.secrets["snowflake"])
     back_from_function=insert_row_snowflake(add_my_fruit)
     streamlit.text(back_from_function)
-#streamlit.write('Thanks for adding ', add_my_fruit)
-#my_cur.execute("insert into fruit_load_list values ('from streamlit')")
+    my_cnx.close()
+
